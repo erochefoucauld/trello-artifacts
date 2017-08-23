@@ -9,11 +9,19 @@ client = TrelloClient(
         token='e7901b564e7f67d2f2c549f7c814b01c925a6dc94bf5b357b317bf88cd07fda5',
         token_secret='')
 
-team = client.get_organization('erochefoucauld')
-boards = team.get_boards(0)
-board = boards[2]
+org = client.get_organization('erochefoucauld')
+boards = org.get_boards(0)
 
-lists = board.all_lists();
+def GetBoard(board_name):
+    show_board = 0
+    for board in boards:
+       if board_name == board.name:
+           show_board = board
+    return show_board
 
-for l in lists:
-    print(l.list_cards())
+board = GetBoard('Test Show')
+for board_list in board.all_lists():
+    print(board_list.name)
+    for card in board_list.list_cards():
+        print(card.name)
+
