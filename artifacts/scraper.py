@@ -19,9 +19,7 @@ def GetBoard(board_name):
            show_board = board
     return show_board
 
-board = GetBoard('Test Show')
-for board_list in board.all_lists():
-    print(board_list.name)
-    for card in board_list.list_cards():
-        print(card.name)
-
+def GetLists(board_name):
+    board = GetBoard(board_name)
+    board_list = board.all_lists()
+    return board_list
