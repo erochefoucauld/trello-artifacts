@@ -46,15 +46,34 @@ context.close_path()
 
 context.stroke()
 
+context.set_source_rgb(255, 0, 0)
 context.set_line_width(2.5)
 for level in tri.levels:
-    print(level.point_one)
     for level in tri.levels:
         x = level.point_one[0]
         y = level.point_one[1]
         context.move_to(level.point_one[0], level.point_one[1])
-        print(level.point_one)
-        print(level.point_two)
         context.line_to(level.point_two[0], level.point_two[1])
+
+context.stroke()
+
+context.set_source_rgb(0, 0, 255)
+context.set_line_width(2.5)
+for level in tri.levels:
+    for level in tri.levels:
+        x = level.point_one[0]
+        y = level.point_one[1]
+        context.rectangle(level.point_one[0] - 5, level.point_one[1] - 5, 10, 10)
+        context.rectangle(level.point_two[0] - 5, level.point_two[1] - 5, 10, 10)
+        
+context.fill()
+
+context.set_source_rgb(0,255,0)
+for level in tri.levels:
+    for level in tri.levels:
+        for segment in level.segments:
+            if(segment.point_one):
+                context.move_to(segment.point_one[0], segment.point_one[1])
+                context.line_to(segment.point_two[0], segment.point_two[1])
 
 context.stroke()

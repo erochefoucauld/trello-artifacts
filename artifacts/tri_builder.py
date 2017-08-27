@@ -1,55 +1,51 @@
-import numpy as np
-from numpy import linalg as la
 import scraper
+from rectangle import Vert, Line, Rectangle
+import vector_math as vm
 
-#to get a unit vector
-#find vector between two points
-#normalize the vector
-#divide the vector by the normalized vector
-def Distance(point_one, point_two):
-    x1 = point_one[0]
-    y1 = point_one[1]
-    x2 = point_two[0]
-    y2 = point_two[1]
-    x = x2 - x1
-    y = y2 - y1
-    x = x * x
-    y = y * y
-    v = x + y
-    distance = np.sqrt(v)
-    return distance
-    
-def CreateVector(point_one, point_two):
-   x = point_two[0] - point_one[0]
-   y = point_two[1] - point_one[1]
-   vector = (x, y)
-   return vector
-
-def Magnitude(vector):
-    x = vector[0] * vector[0]
-    y = vector[1] * vector[1]
-    v = x + y
-    return np.sqrt(v)
-
-def Normalize(vector):
-    mag = Magnitude(vector)
-    x = vector[0]/mag
-    y = vector[0]/mag
-    v = (x,y)
-    return v
+def BuildSegmentRect(top_line, bottom_line, width):
+    top_left = top_line.begin
+    top_right = Vert(top_line.begin.x + width, top_line.begin.y)
+    bot_right = Vert(top_right.x, bottom_line.begin.y)
+    bot_left = Vert(top_right.x, bot_right.y)
+    verts = (top_left, top_right, bot_right, bot_left)
+    rect = Rectangle(verts)
+    return rect
 
 class Segment:
-    num = 0
-    point_one = ()
-    point_two = ()
+    def __init__(self, rect, string):
+        self.rectangle = rect
+        self.text = string 
 
 class Level:
-    num_segments = 0
-    segments = ()
-    point_one = ()
-    point_two = ()
-    def BuildSegments(num_cards):
-        s = 0
+    def __init__(self, top, bottom):
+        self.segments = []
+        self.top = top
+        self.bottom = bottom
+
+    def BuildSegments(self, cards):
+        #if((0,0,0,0) != self.constraints and len(cards) > 0):
+            #width_iterator = (self.bottom[0][0] - self.constraints[1][0]) / len(cards)
+            #width = width_iterator
+        card_iterator = len(cards) - 1
+        for card in cards:
+            rect = None
+            #first segment
+            if(self.top == None):
+                temp_begin = Vert((0,0))
+                temp_end = Vert((0,0))
+                verts = []
+                verts.append(temp_begin)
+                verts.append(temp_end)
+                temp_top = Line(verts)
+                rect = BuildSegmentRect(temp_top, self.bottom, 0)
+            #middle segments
+            if(self.top and card_iterator > 0):
+                rect = BuildSegmentRect(self.top, self.bottom, width)
+               
+            segment = Segment(rect, card.name)
+            width += width_iterator
+            self.segments.append(segment)
+            card_iterator -= 1
 
 class Triangle:
     point_one = ()
@@ -69,17 +65,25 @@ class Triangle:
         y1 = y2 = self.point_one[1]
         v1 = (self.side_one[0] / self.num_levels, self.side_one[1]/self.num_levels)
         v2 = (self.side_three[0] / self.num_levels, self.side_three[1]/self.num_levels)
+        count = 0
+        constraints = None
         for item in lists:
             #get number of cards for segments
-            level = Level()
             x1 += v1[0]
             y1 += v1[1]
             x2 += v2[0]
             y2 += v2[1]
-            level.point_one = (x1, y1)
-            level.point_two = (x2, y2)
+            verts = []
+            beg = Vert((x1, y1))
+            end = Vert((x2, y2))
+            verts.append(beg)
+            verts.append(end)
+            bottom_line = verts
+            top_line = constraints
+            level = Level(top_line, bottom_line)
+            level.BuildSegments(item.list_cards())
             self.levels.append(level)
-
+            constraints = bottom_line
 
 def BuildTriangle(point_one, point_two, point_three,
         lists):
@@ -88,13 +92,11 @@ def BuildTriangle(point_one, point_two, point_three,
     triangle.point_two = point_two
     triangle.point_three = point_three
     triangle.num_levels = len(lists)
-    triangle.side_one = CreateVector(point_one, point_two)
-    triangle.side_three = CreateVector(point_one, point_three)
-    triangle.point_one_norm = Normalize(triangle.side_one)
-    triangle.point_two_norm = Normalize(triangle.side_three)
-    print(triangle.point_one_norm)
-    triangle.distance = Distance(point_one, point_two)
-    print(triangle.distance)
+    triangle.side_one = vm.CreateVector(point_one, point_two)
+    triangle.side_three = vm.CreateVector(point_one, point_three)
+    triangle.point_one_norm = vm.Normalize(triangle.side_one)
+    triangle.point_two_norm = vm.Normalize(triangle.side_three)
+    triangle.distance = vm.Distance(point_one, point_two)
 
     triangle.BuildLevels(lists)
 
